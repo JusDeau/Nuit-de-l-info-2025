@@ -1,0 +1,10 @@
+body {
+    font-family: Arial, sans-serif;
+    margin-top: 90px;
+	margin-left: 10px;
+    min-height: 100vh;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-image: url("Images/bg_img.jpg");
+}

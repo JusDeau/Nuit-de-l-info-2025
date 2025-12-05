@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="fr">
+	<head>
+		<meta charset="utf-8">
+		<link href="{{ url_for('static',filename='base.css') }}" rel="stylesheet">
+		<link href="{{ url_for('static',filename='font_ia_nuit.css') }}" rel="stylesheet">
+		<style>
+    .socra-launcher {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #1a2980, #26d0ce);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(26, 41, 128, 0.3);
+        z-index: 1000;
+        transition: transform 0.3s;
+    }
+    
+    .socra-launcher:hover {
+        transform: scale(1.1);
+    }
+    
+    .socra-popup-container {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        width: 800px;
+        height: 600px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        z-index: 1001;
+        display: none;
+        overflow: hidden;
+    }
+    
+    .socra-popup-container iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        border-radius: 20px;
+    }
+    
+    @media (max-width: 500px) {
+        .socra-popup-container {
+            width: 95%;
+            right: 2.5%;
+            height: 70vh;
+            bottom: 80px;
+        }
+    }
+</style>
+	</head>
+	<body>
+		<div class="header">
+			<div class="left-side">
+				<a href="/main_nuit"><img src="{{ url_for('static', filename='Images/logo.png') }}" class="logo" alt="accueil"></a>
+				<div class="nav-icons">
+					<a href="/art_nuit"><img src="{{ url_for('static', filename='Images/art_icone_nuit.jpg') }}" alt="Art">ART</a>
+					<a href="/prog_nuit"><img src="{{ url_for('static', filename='Images/os_icone_nuit.jpg') }}" alt="Programmation">OS</a>
+					<a href="/IA_nuit"><img src="{{ url_for('static', filename='Images/ia_icone_nuit.png') }}" alt="IA">IA</a>
+					<a href="/texte_nuit"><img src="{{ url_for('static', filename='Images/txt_icone_nuit.jpg') }}" alt="Texte">TEXTE</a>
+				</div>
+			</div>
+			<label class="toggle">
+				<input type="checkbox" id="btnToggle" name="btnToggle" checked>
+				<span class="slider"></span>
+			</label>
+			<script>
+				document.getElementById("btnToggle").addEventListener("change", function() {
+				if (this.checked) {
+					// Aller vers la page nuit
+					window.location.href = "/IA_nuit";
+				} else {
+					// Retour au mode nuit
+					window.location.href = "/IA_jour";
+				}
+				});
+			</script>
+		</div>
+<div>
+	<h>le chat de mistral:</h>
+    <h2>avantage: </h2>
+    <p>• Approche européenne, respect strict de la vie privée.</p>
+    <p>• Réponses souvent plus directes et structurées.</p>
+    <p>• Communauté open source active autour des modèles Mistral.</p>
+
+
+    <h2>inconvénient :</h2>
+	<p>Moins connu que ChatGPT, écosystème d’intégrations en développement.</p>
+    <p>• Certains modèles sont moins puissants que GPT-4 sur des tâches très complexes.</p>
+</div>
+
+		<button class="socra-launcher" id="socraLauncher">🤔</button>
+<div class="socra-popup-container" id="socraPopupContainer">
+    <!-- Canvas pour le Snake -->
+    <canvas id="snakeCanvas" width="800" height="600"></canvas>
+    <!-- Iframe pour l'IA, cachée au départ -->
+    <iframe id="socraIframe" src="" style="display:none;"></iframe>
+</div>
+
+<script>
+const launcher = document.getElementById('socraLauncher');
+const popupContainer = document.getElementById('socraPopupContainer');
+const canvas = document.getElementById('snakeCanvas');
+const ctx = canvas.getContext('2d');
+const socraIframe = document.getElementById('socraIframe');
+
+let isOpen = false;
+
+// Toggle pop-up
+launcher.addEventListener('click', () => {
+    popupContainer.style.display = isOpen ? 'none' : 'block';
+    launcher.innerHTML = isOpen ? '🤔' : '×';
+    launcher.style.fontSize = isOpen ? '24px' : '30px';
+    isOpen = !isOpen;
+});
+
+// Fermer en cliquant en dehors
+document.addEventListener('click', (e) => {
+    if (isOpen && !popupContainer.contains(e.target) && e.target !== launcher) {
+        popupContainer.style.display = 'none';
+        launcher.innerHTML = '🤔';
+        launcher.style.fontSize = '24px';
+        isOpen = false;
+    }
+});
+
+// --- Snake Game Variables ---
+const CELL_SIZE = 24;
+const GRID_WIDTH = 33;
+const GRID_HEIGHT = 25;
+
+let snake = [{x:10, y:10}];
+let dir = {x:1, y:0};
+let food = {x:15, y:15};
+let score = 0;
+
+// Key control
+document.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowUp') dir = {x:0, y:-1};
+    if(e.key === 'ArrowDown') dir = {x:0, y:1};
+    if(e.key === 'ArrowLeft') dir = {x:-1, y:0};
+    if(e.key === 'ArrowRight') dir = {x:1, y:0};
+});
+
+// --- Game Loop ---
+function gameLoop() {
+    // Move snake
+    let head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
+    snake.unshift(head);
+
+    // Eat food
+    if(head.x === food.x && head.y === food.y){
+        score++;
+        food = {x: Math.floor(Math.random()*GRID_WIDTH), y: Math.floor(Math.random()*GRID_HEIGHT)};
+        
+        if(score >= 5){
+            // Switch to AI iframe
+            canvas.style.display = 'none';
+            socraIframe.style.display = 'block';
+            socraIframe.src = "{{ url_for('static', filename='socra404.html') }}";
+            return;
+        }
+    } else {
+        snake.pop();
+    }
+
+    // Collision with walls (reset snake)
+    if(head.x < 0 || head.x >= GRID_WIDTH || head.y < 0 || head.y >= GRID_HEIGHT){
+        snake = [{x:10, y:10}];
+        dir = {x:1, y:0};
+        score = 0;
+    }
+
+    // Draw background
+    ctx.fillStyle = '#1e1e1e';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw food
+    ctx.fillStyle = 'yellow';
+    ctx.fillRect(food.x*CELL_SIZE, food.y*CELL_SIZE, CELL_SIZE, CELL_SIZE);
+
+    // Draw snake
+    ctx.fillStyle = 'pink';
+    snake.forEach((s) => {
+        ctx.fillRect(s.x*CELL_SIZE, s.y*CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    });
+
+    // Draw score
+    ctx.fillStyle = 'white';
+    ctx.font = '20px Arial';
+    ctx.fillText("Score: " + score, 10, 25);
+
+    setTimeout(gameLoop, 200); // speed
+}
+
+// Start game loop
+gameLoop();
+</script>
+
+	</body>
+</html>

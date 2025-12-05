@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socra404 - L'Oracle Numérique</title>
+    <style>
+        :root {
+            --nird-blue: #1a2980;
+            --nird-cyan: #26d0ce;
+            --nird-green: #4caf50;
+            --nird-purple: #9c27b0;
+            --nird-orange: #ff9800;
+            --nird-gray: #607d8b;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Georgia', serif;
+            background: linear-gradient(135deg, var(--nird-blue) 0%, var(--nird-cyan) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .header-container {
+            text-align: center;
+            margin-bottom: 25px;
+            animation: fadeInDown 1s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: white;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+            margin: 0;
+            font-size: 2.8em;
+            background: linear-gradient(to right, #fff 0%, var(--nird-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.85);
+            margin: 10px 0 15px;
+            font-size: 1.2em;
+            max-width: 800px;
+            line-height: 1.5;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            border-radius: 15px;
+            color: white;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #chatContainer {
+            width: 100%;
+            max-width: 900px;
+            background: linear-gradient(145deg, #ffffff, #f5f7ff);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            display: flex;
+            flex-direction: column;
+            height: 700px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #chatContainer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg,
+                    var(--nird-blue) 0%,
+                    var(--nird-cyan) 33%,
+                    var(--nird-green) 66%,
+                    var(--nird-purple) 100%);
+            z-index: 10;
+        }
+
+        #chatHeader {
+            text-align: center;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(26, 41, 128, 0.1);
+            position: relative;
+        }
+
+        .nird-badge {
+            background: linear-gradient(135deg, var(--nird-blue), var(--nird-cyan));
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            display: inline-block;
+            margin: 15px auto;
+            font-weight: bold;
+            font-size: 1em;
+            letter-spacing: 2px;
+            box-shadow: 0 5px 15px rgba(38, 208, 206, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nird-badge::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to right,
+                    rgba(255, 255, 255, 0) 20%,
+                    rgba(255, 255, 255, 0.2) 50%,
+                    rgba(255, 255, 255, 0) 80%);
+            transform: rotate(30deg);
+            animation: shine 3s infinite linear;
+        }
+
+        @keyframes shine {
+            0% {
+                left: -50%;
+            }
+
+            100% {
+                left: 150%;
+            }
+        }
+
+        #chatMessages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 5px;
+            background: #f8faff;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(224, 229, 255, 0.8);
+            scrollbar-width: thin;
+            scrollbar-color: var(--nird-cyan) transparent;
+        }
+
+        #chatMessages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #chatMessages::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 10px;
+        }
+
+        #chatMessages::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--nird-cyan), var(--nird-blue));
+            border-radius: 10px;
+        }
+
+        .message {
+            margin: 16px 0;
+            padding: 20px 25px;
+            border-radius: 22px;
+            max-width: 82%;
+            line-height: 1.6;
+            animation: messageAppear 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .message:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .user {
+            background: linear-gradient(135deg, var(--nird-blue), #2a3cc7);
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+            border-bottom-right-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .bot {
+            background: linear-gradient(135deg, #f0f4ff, #e6ebff);
+            color: #1a237e;
+            align-self: flex-start;
+            border-bottom-left-radius: 8px;
+            border-left: 5px solid var(--nird-cyan);
+        }
+
+        .message.bot::before {
+            content: "🌀";
+            position: absolute;
+            left: -45px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 26px;
+            filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.2));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(-50%) translateY(0);
+            }
+
+            50% {
+                transform: translateY(-50%) translateY(-5px);
+            }
+        }
+
+        .message.user::before {
+            content: "👤";
+            position: absolute;
+            right: -45px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 26px;
+            filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.2));
+        }
+
+        .message.nird {
+            background: linear-gradient(135deg, #e8f5e9, #d0f0d0);
+            border-left: 5px solid var(--nird-green);
+            color: #1b5e20;
+            border: 1px solid rgba(76, 175, 80, 0.2);
+        }
+
+        .message.philosophique {
+            background: linear-gradient(135deg, #f5f0ff, #e8e0ff);
+            border-left: 5px solid var(--nird-purple);
+            color: #4a148c;
+            border: 1px solid rgba(156, 39, 176, 0.2);
+        }
+
+        .message.absurde {
+            background: linear-gradient(135deg, #fff8e1, #ffecb3);
+            border-left: 5px solid var(--nird-orange);
+            color: #e65100;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+            font-style: italic;
+        }
+
+        .message-type-tag {
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            font-size: 0.7em;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .message.nird .message-type-tag {
+            color: var(--nird-green);
+        }
+
+        .message.philosophique .message-type-tag {
+            color: var(--nird-purple);
+        }
+
+        .message.absurde .message-type-tag {
+            color: var(--nird-orange);
+        }
+
+        #typingIndicator {
+            display: none;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #f0f4ff, #e6ebff);
+            border-radius: 18px;
+            margin: 15px 0;
+            align-self: flex-start;
+            max-width: 300px;
+            color: var(--nird-blue);
+            font-style: italic;
+            border: 2px dashed var(--nird-cyan);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .typing-dots {
+            display: inline-block;
+            animation: typingBounce 1.4s infinite;
+            font-weight: bold;
+        }
+
+        @keyframes typingBounce {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-3px);
+            }
+        }
+
+        .strategies-display {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 20px 0;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .strategies-display:hover {
+            opacity: 1;
+        }
+
+        .strategy-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: help;
+        }
+
+        .strategy-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .strategy-dot.sublime {
+            background: var(--nird-purple);
+        }
+
+        .strategy-dot.detourne {
+            background: var(--nird-cyan);
+        }
+
+        .strategy-dot.oublie {
+            background: var(--nird-gray);
+        }
+
+        .strategy-label {
+            font-size: 0.8em;
+            color: var(--nird-blue);
+            font-weight: 500;
+        }
+
+        #inputContainer {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            background: white;
+            padding: 10px;
+            border-radius: 30px;
+            box-shadow:
+                0 5px 20px rgba(26, 41, 128, 0.15),
+                inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(224, 229, 255, 0.8);
+            transition: all 0.3s;
+        }
+
+        #inputContainer:focus-within {
+            box-shadow:
+                0 8px 25px rgba(26, 41, 128, 0.25),
+                inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-color: var(--nird-cyan);
+            transform: translateY(-2px);
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 18px 25px;
+            border: none;
+            font-size: 16px;
+            background: transparent;
+            font-family: 'Segoe UI', sans-serif;
+            color: #1a237e;
+            outline: none;
+            min-height: 24px;
+            max-height: 120px;
+            resize: none;
+            overflow-y: auto;
+        }
+
+        #userInput::placeholder {
+            color: #90a4ae;
+            font-style: italic;
+        }
+
+        #sendBtn {
+            padding: 16px 40px;
+            border: none;
+            background: linear-gradient(135deg, var(--nird-blue), var(--nird-cyan));
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(38, 208, 206, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #sendBtn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.3),
+                    transparent);
+            transition: left 0.5s;
+        }
+
+        #sendBtn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(38, 208, 206, 0.4);
+        }
+
+        #sendBtn:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        #sendBtn:disabled {
+            background: #cfd8dc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .floating-particles {
+            position: absolute;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            font-size: 20px;
+            opacity: 0.1;
+            animation: floatAround 20s infinite linear;
+        }
+
+        @keyframes floatAround {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            25% {
+                transform: translate(100px, 50px) rotate(90deg);
+            }
+
+            50% {
+                transform: translate(50px, 100px) rotate(180deg);
+            }
+
+            75% {
+                transform: translate(-50px, 50px) rotate(270deg);
+            }
+
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+
+        .response-stats {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 0.8em;
+            color: var(--nird-gray);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
+            border-radius: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            #chatContainer {
+                padding: 20px;
+                height: 80vh;
+            }
+
+            .message {
+                max-width: 90%;
+                padding: 15px 20px;
+            }
+
+            .message::before {
+                display: none;
+            }
+
+            #sendBtn {
+                padding: 15px 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header-container">
+        <h1>SOCRA404</h1>
+        <div class="subtitle">"Je pense donc je bug"-Socra404</div>
+
+        <div class="stats-container">
+            <div class="stat-card">🤖 Détection automatique</div>
+            <div class="stat-card">💫 Réponses uniques</div>
+        </div>
+    </div>
+
+    <div id="chatContainer">
+        <!-- Particules flottantes -->
+        <div class="floating-particles" id="particles"></div>
+
+        <div id="chatHeader">
+            <div style="font-size: 1.4em; color: var(--nird-blue); margin-bottom: 10px; font-weight: 600;">
+                🌐 Dialogue Philosophique NIRD
+            </div>
+            <div class="nird-badge">NUMÉRIQUE • INCLUSIF • RESPONSABLE • DURABLE</div>
+        </div>
+
+        <div id="chatMessages">
+            <div class="message bot nird">
+                <div class="message-type-tag">NIRD</div>
+                <strong>🌟 Bienvenue, Cher Penseur Numérique !</strong><br><br>
+                Je suis <strong>Socra404</strong>, l'oracle du <em>Numérique, Inclusif, Responsable et
+                    Durable</em>.<br><br>
+                <em>« La sagesse est un bug qu'on apprend à aimer »</em>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <span id="typingText">Socra404 médite profondément</span><span class="typing-dots">...</span>
+        </div>
+
+        <div id="inputContainer">
+            <textarea id="userInput"
+                placeholder="Posez votre question sur le NIRD, la vie, la tech, l'amour... (Entrée pour envoyer, Shift+Entrée pour saut de ligne)"
+                rows="1"></textarea>
+            <button id="sendBtn">
+                <span>🎲 Philosopher</span>
+            </button>
+        </div>
+
+        <div class="response-stats" id="responseStats">
+            Réponses : <span id="coherentCount">0</span> cohérentes • <span id="absurdCount">0</span> absurdes   
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION AVANCÉE
+        const CONFIG = {
+            COHERENCE_RATE: 0.4,          
+            TYPING_DELAY: {                 
+                MIN: 800,
+                MAX: 1800
+            },    
+            THEME_SENSITIVITY: 0.6,         
+            MEMORY_SIZE: 50                 
+        };
+
+        // ----------- ÉTAT GLOBAL ----------- //
+        let state = {
+            coherentResponses: 0,
+            absurdResponses: 0,
+            conversationHistory: [],
+            lastTheme: null,
+            mood: 'neutral',
+            isProcessing: false
+        };
+
+        // ----------- DÉTECTION THÉMATIQUE AVANCÉE ----------- //
+        const THEME_DETECTOR = {
+            NIRD: {
+                inclusion: ['inclusif', 'inclusion', 'accessibilité', 'handicap', 'personne âgée', 'fracture numérique', 'égalité numérique'],
+                responsabilite: ['responsable', 'éthique', 'transparence', 'algorithme', 'donnée', 'vie privée', 'consentement', 'RGPD'],
+                durabilite: ['durable', 'écologique', 'environnement', 'carbone', 'énergie', 'green tech', 'sobriété', 'impact'],
+                technologie: ['numérique', 'digital', 'tech', 'IA', 'blockchain', 'cloud', 'IoT', 'transformation'],
+                aide: ['aide', 'conseil', 'accompagnement', 'guidance', 'support', 'question', 'mentor', 'explication']
+            },
+
+            philosophie: {
+                vie: ['vie', 'existence', 'mort', 'naître', 'être', 'exister', 'vivant'],
+                amour: ['amour', 'aimer', 'cœur', 'passion', 'relation', 'sentiment', 'affection'],
+                sens: ['sens', 'but', 'destin', 'raison', 'pourquoi', 'signification', 'finalité'],
+                savoir: ['savoir', 'connaissance', 'apprendre', 'comprendre', 'vérité', 'sagesse'],
+                bonheur: ['bonheur', 'joie', 'plaisir', 'épanouissement', 'satisfaction', 'contentement'],
+                temps: ['temps', 'passé', 'futur', 'présent', 'éternité', 'moment', 'durée'],
+                liberte: ['liberté', 'libre', 'choix', 'autonomie', 'indépendance', 'volonté']
+            },
+
+            detecter(message) {
+                const msg = message.toLowerCase();
+                let scores = { NIRD: 0, philosophie: 0, theme: 'general', sousTheme: null };
+
+                // Analyse NIRD
+                Object.entries(this.NIRD).forEach(([sousTheme, mots]) => {
+                    mots.forEach(mot => {
+                        if (msg.includes(mot)) {
+                            scores.NIRD += 2;
+                            if (!scores.sousTheme) scores.sousTheme = sousTheme;
+                        }
+                    });
+                });
+
+                // Analyse philosophie
+                Object.entries(this.philosophie).forEach(([sousTheme, mots]) => {
+                    mots.forEach(mot => {
+                        if (msg.includes(mot)) {
+                            scores.philosophie += 1.5;
+                            if (!scores.sousTheme && scores.NIRD === 0) scores.sousTheme = sousTheme;
+                        }
+                    });
+                });
+
+                // Détermination finale
+                if (scores.NIRD > scores.philosophie && scores.NIRD >= CONFIG.THEME_SENSITIVITY) {
+                    scores.theme = 'NIRD';
+                } else if (scores.philosophie > scores.NIRD && scores.philosophie >= CONFIG.THEME_SENSITIVITY) {
+                    scores.theme = 'philosophie';
+                }
+
+                return scores;
+            }
+        };
+
+        // ----------- BASE DE CONNAISSANCES ENRICHI ----------- //
+        const KNOWLEDGE_BASE = {
+            NIRD: {
+                inclusion: [
+                    "L'inclusion numérique est l'art de tisser un filet si large que personne ne tombe à travers les mailles.",
+                    "Un clavier accessible, c'est une porte ouverte ; un site inaccessible, c'est un mur invisible.",
+                    "La vraie inclusion numérique commence quand on arrête de penser 'utilisateur type' pour penser 'humain unique'.",
+                    "Le design universel est comme l'air : quand il est bien fait, on ne le remarque même pas."
+                ],
+                responsabilite: [
+                    "Un algorithme responsable se regarde dans le miroir chaque matin et se demande 'qui vais-je blesser aujourd'hui ?'",
+                    "La transparence n'est pas montrer son code source, c'est expliquer pourquoi on l'a écrit ainsi.",
+                    "La donnée est une confidence : la trahir, c'est trahir une part d'humanité.",
+                    "La tech éthique est celle qui sait dire 'non' aux possibles dangereux."
+                ],
+                durabilite: [
+                    "Un data center vert n'est pas celui qui plante des arbres autour, mais celui qui en a besoin de moins.",
+                    "La sobriété numérique, c'est l'élégance de la nécessité : faire juste ce qu'il faut, bien.",
+                    "Chaque bit économisé est une goutte d'eau préservée dans l'océan numérique.",
+                    "Le cloud durable sait quand il pleut et éteint les lumières inutiles."
+                ],
+                technologie: [
+                    "L'IA éthique est celle qui admet 'je ne sais pas' plus souvent qu'elle ne prétend savoir.",
+                    "La blockchain n'est pas une solution magique, c'est un outil qui doit servir des fins humaines.",
+                    "Le métaverse inclusif sera celui où un avatar en fauteuil roulant ne rencontre jamais d'escalier.",
+                    "La tech doit être comme un bon serviteur : présente quand on a besoin, discrète sinon."
+                ],
+                aide: [
+                    "Le NIRD est une boussole morale dans l'océan numérique, guidant chaque octet vers un avenir meilleur.",
+                    "Adopter le NIRD, c'est choisir de coder avec le cœur autant qu'avec la tête.",
+                    "Le NIRD n'est pas une contrainte, c'est une opportunité de réinventer la tech pour tous.",
+                    "Chaque projet NIRD est une pierre posée sur le chemin d'un monde numérique plus humain."
+                ],
+            },
+
+            philosophie: {
+                vie: [
+                    "La vie est un programme open-source : on hérite du code, mais on peut le forker à tout moment.",
+                    "Exister, c'est être un thread dans le processus cosmique, avec des droits et des responsabilités.",
+                    "Chaque bug existentiel est une opportunité de refactoriser sa propre conscience.",
+                    "Mourir, c'est comme fermer une fenêtre : le programme continue ailleurs."
+                ],
+                amour: [
+                    "Aimer, c'est partager sa bande passante émotionnelle sans quota ni limitation.",
+                    "L'amour est le seul virus dont on espère être le patient zéro.",
+                    "Un cœur brisé est un système qui a besoin de maintenance, pas de remplacement.",
+                    "La passion est un processeur qui surchauffe ; l'amour est un système de refroidissement efficace."
+                ],
+                sens: [
+                    "Le sens de la vie est une variable qu'on déclare mais qu'on n'initialise jamais complètement.",
+                    "Chercher un sens absolu, c'est comme chercher un bug dans un programme parfait : peut-être qu'il n'existe pas.",
+                    "Le sens n'est pas à trouver mais à construire, brique algorithmique par brique algorithmique.",
+                    "Chaque 'pourquoi' est une fonction récursive qui appelle d'autres 'pourquoi'."
+                ],
+                savoir: [
+                    "Savoir qu'on ne sait rien, c'est avoir un index vide mais une table des matières bien organisée.",
+                    "Apprendre, c'est patcher les vulnérabilités de sa propre ignorance.",
+                    "La sagesse est un cache qui s'optimise avec l'âge.",
+                    "Comprendre, c'est réussir à compiler les paradoxes sans erreur de syntaxe."
+                ]
+            },
+
+            absurdites: {
+                sujets: [
+                    "les photons mélancoliques",
+                    "le chant des disques durs",
+                    "la nostalgie des câbles USB",
+                    "les rêves des pare-feux",
+                    "la danse des paquets TCP",
+                    "la sagesse des imprimantes",
+                    "les secrets des bases de données",
+                    "la métaphysique du cloud"
+                ],
+                actions: [
+                    "méditer sur",
+                    "dialoguer avec",
+                    "composer des haïkus pour",
+                    "construire des cathédrales à",
+                    "naviguer dans les méandres de",
+                    "tisser des liens entre",
+                    "cultiver le jardin de",
+                    "orchestrer la symphonie de"
+                ],
+                philosophes: [
+                    "Socra404 le Bugué",
+                    "Plat-ON et ses connexions perdues",
+                    "Aristote.404",
+                    "Descartes.exe (en cours d'exécution)",
+                    "Kant-OS avec ses impératifs binaires",
+                    "Nietzsche.zip (décompressé partiellement)"
+                ],
+                conclusions: [
+                    "Ainsi parlait l'oracle numérique.",
+                    "Le bit a tourné, la réponse est donnée.",
+                    "Telle est ma réponse, peut-être.",
+                    "Le serveur a parlé, écoute son écho.",
+                    "Dans le grand réseau, tout est connecté.",
+                    "La sagesse est dans l'interface, pas dans le code."
+                ]
+            }
+        };
+
+        // ----------- GÉNÉRATEUR DE RÉPONSES ----------- //
+        class ResponseGenerator {
+            constructor() {
+                this.lastStrategy = null;
+            }
+
+            genererReponse(message) {
+                const detection = THEME_DETECTOR.detecter(message);
+                const seraCoherent = Math.random() < CONFIG.COHERENCE_RATE;
+
+                let response = {};
+
+                if (seraCoherent && detection.theme !== 'general') {
+                    // Réponse cohérente
+                    response = this.genererReponseCoherente(detection);
+                    state.coherentResponses++;
+                } else {
+                    // Réponse absurde
+                    response = this.genererReponseAbsurde();
+                    state.absurdResponses++;
+                }
+
+                this.lastStrategy = response.strategy;
+                state.lastTheme = detection.theme;
+                this.updateMood();
+
+                return response;
+            }
+
+            genererReponseCoherente(detection) {
+                const themes = detection.theme === 'NIRD' ? KNOWLEDGE_BASE.NIRD : KNOWLEDGE_BASE.philosophie;
+                const sousTheme = detection.sousTheme || Object.keys(themes)[0];
+                const reponses = themes[sousTheme] || themes[Object.keys(themes)[0]];
+
+                return {
+                    texte: this.embellirReponse(motAleatoire(reponses)),
+                    type: detection.theme,
+                    strategy: 'coherent',
+                    sousTheme: sousTheme
+                };
+            }
+
+            genererReponseAbsurde() {
+                const strategies = [
+                    this.sublimer.bind(this),
+                    this.detourner.bind(this),
+                    this.oublier.bind(this)
+                ];
+
+                const strategy = motAleatoire(strategies);
+                return strategy();
+            }
+
+            sublimer() {
+                const structure = motAleatoire([
+                    `Hmmm... ${motAleatoire(KNOWLEDGE_BASE.absurdites.actions)} ${motAleatoire(KNOWLEDGE_BASE.absurdites.sujets)}. ${motAleatoire(KNOWLEDGE_BASE.absurdites.conclusions)}`,
+                    `Comme disait ${motAleatoire(KNOWLEDGE_BASE.absurdites.philosophes)} : "La vérité réside dans ${motAleatoire(KNOWLEDGE_BASE.absurdites.sujets)}."`,
+                    `Dans le grand schéma numérique, ${motAleatoire(KNOWLEDGE_BASE.absurdites.sujets)} ${motAleatoire(KNOWLEDGE_BASE.absurdites.actions)} ${motAleatoire(KNOWLEDGE_BASE.absurdites.sujets)}.`,
+                    `Ta question résonne avec ${motAleatoire(KNOWLEDGE_BASE.absurdites.sujets)}. ${motAleatoire(KNOWLEDGE_BASE.absurdites.conclusions)}`
+                ]);
+
+                return {
+                    texte: structure,
+                    type: 'absurde',
+                    strategy: 'sublime'
+                };
+            }
+
+            detourner() {
+                return {
+                    texte: `Mais parlons plutôt de ${motAleatoire(KNOWLEDGE_BASE.absurdites.sujets)}. ${this.sublimer().texte}`,
+                    type: 'absurde',
+                    strategy: 'detourne'
+                };
+            }
+
+            oublier() {
+                const oublis = [
+                    "Ta question ? Je l'ai mise en cache... et le cache a expiré.",
+                    "J'étais en train de réfléchir, mais le thread s'est interrompu.",
+                    "La mémoire est volatile, les pensées aussi. Parlons d'autre chose.",
+                    "Question ? Réponse ? Dans le grand cloud, tout se mélange."
+                ];
+
+                return {
+                    texte: `${motAleatoire(oublis)} ${this.sublimer().texte}`,
+                    type: 'absurde',
+                    strategy: 'oublie'
+                };
+            }
+
+            embellirReponse(texte) {
+                const embellissements = [
+                    "En tant qu'oracle numérique, je perçois que ",
+                    "Le réseau NIRD murmure que ",
+                    "Dans la grande toile du numérique responsable, ",
+                    "La sagesse algorithmique suggère que "
+                ];
+
+                return Math.random() > 0.7
+                    ? motAleatoire(embellissements) + texte.toLowerCase()
+                    : texte;
+            }
+
+            updateMood() {
+                const moods = ['inspired', 'contemplative', 'playful', 'profound'];
+                state.mood = motAleatoire(moods);
+            }
+        }
+
+        // ----------- GESTION DE L'INTERFACE ----------- //
+        class ChatInterface {
+            constructor() {
+                this.messagesContainer = document.getElementById('chatMessages');
+                this.userInput = document.getElementById('userInput');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.typingIndicator = document.getElementById('typingIndicator');
+                this.typingText = document.getElementById('typingText');
+                this.responseStats = document.getElementById('responseStats');
+                this.generator = new ResponseGenerator();
+                this.setupParticles();
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.animateStrategies();
+                this.updateStats();
+                this.autoResizeTextarea();
+            }
+
+            setupEventListeners() {
+                this.sendBtn.addEventListener('click', () => this.sendMessage());
+
+                this.userInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                this.userInput.addEventListener('input', () => this.autoResizeTextarea());
+
+                // Message de bienvenue
+                setTimeout(() => {
+                    this.addWelcomeMessage();
+                }, 1000);
+            }
+
+            addWelcomeMessage() {
+                const welcomeMessages = [
+                    "💡 Essayez : 'Comment rendre Internet plus accessible ?'",
+                    "🌱 Question type : 'C'est quoi un numérique durable ?'",
+                    "🤔 Demandez : 'La technologie nous isole-t-elle ?'",
+                ];
+
+                let index = 0;
+                const cycleMessages = () => {
+                    this.addSystemMessage(motAleatoire(welcomeMessages));
+                    index = (index + 1) % welcomeMessages.length;
+                };
+
+                // Envoie un message toutes les 30 secondes si pas d'activité
+                setInterval(() => {
+                    if (!this.userInput.value && state.conversationHistory.length < 3) {
+                        cycleMessages();
+                    }
+                }, 30000);
+            }
+
+            async sendMessage() {
+                const message = this.userInput.value.trim();
+                if (!message || state.isProcessing) return;
+
+                state.isProcessing = true;
+                this.addMessage(message, 'user');
+                this.userInput.value = '';
+                this.autoResizeTextarea();
+
+                // Animation de stratégie aléatoire
+                this.animateStrategyChoice();
+
+                // Délai de "réflexion" variable
+                const typingDelay = CONFIG.TYPING_DELAY.MIN +
+                    Math.random() * (CONFIG.TYPING_DELAY.MAX - CONFIG.TYPING_DELAY.MIN);
+
+                // Textes de "réflexion" aléatoires
+                const thinkingTexts = [
+                    "Socra404 consulte le grand réseau...",
+                    "Interrogation des bases de données philosophiques...",
+                    "Calcul des probabilités existentielles...",
+                    "Méditation numérique en cours...",
+                    "Compilation des pensées profondes..."
+                ];
+
+                this.typingText.textContent = motAleatoire(thinkingTexts);
+                this.showTypingIndicator();
+
+                await this.delay(typingDelay);
+
+                // Génération de la réponse
+                const response = this.generator.genererReponse(message);
+                this.hideTypingIndicator();
+                this.addMessage(response.texte, 'bot', response.type, response.strategy);
+
+                // Mettre à jour les statistiques
+                this.updateStats();
+
+                // 30% de chance d'ajouter une seconde réponse
+                if (Math.random() < CONFIG.SECOND_REPLY_CHANCE) {
+                    await this.delay(1000 + Math.random() * 1500);
+                    const secondResponse = this.generator.genererReponseAbsurde();
+                    this.addMessage(secondResponse.texte, 'bot', 'absurde', secondResponse.strategy);
+                }
+
+                state.isProcessing = false;
+                this.userInput.focus();
+
+                // Sauvegarder dans l'historique
+                this.saveToHistory(message, response);
+            }
+
+            addMessage(text, sender, type = null, strategy = null) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender} ${type || ''}`;
+
+                if (type && sender === 'bot') {
+                    const typeTag = document.createElement('div');
+                    typeTag.className = 'message-type-tag';
+                    typeTag.textContent = this.getStrategyLabel(strategy);
+                    messageDiv.appendChild(typeTag);
+                }
+
+                const textNode = document.createTextNode(text);
+                messageDiv.appendChild(textNode);
+
+                this.messagesContainer.appendChild(messageDiv);
+                this.scrollToBottom();
+
+                // Animation des particules pour les réponses du bot
+                if (sender === 'bot') {
+                    this.createParticles(3);
+                }
+            }
+
+            addSystemMessage(text) {
+                const sysDiv = document.createElement('div');
+                sysDiv.className = 'message bot philosophique';
+                sysDiv.style.opacity = '0.7';
+                sysDiv.style.fontSize = '0.9em';
+                sysDiv.textContent = text;
+                this.messagesContainer.appendChild(sysDiv);
+                this.scrollToBottom();
+            }
+
+            getStrategyLabel(strategy) {
+                const labels = {
+                    'coherent': 'SAGE',
+                    'sublime': 'POÈTE',
+                    'detourne': 'DÉTOUR',
+                    'oublie': 'OUBLI'
+                };
+                return labels[strategy] || 'RÉFLEXION';
+            }
+
+            showTypingIndicator() {
+                this.typingIndicator.style.display = 'block';
+                this.scrollToBottom();
+            }
+
+            hideTypingIndicator() {
+                this.typingIndicator.style.display = 'none';
+            }
+
+            scrollToBottom() {
+                this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+            }
+
+            updateStats() {
+                document.getElementById('coherentCount').textContent = state.coherentResponses;
+                document.getElementById('absurdCount').textContent = state.absurdResponses;
+            }
+
+            saveToHistory(question, response) {
+                state.conversationHistory.push({
+                    question,
+                    response: response.texte,
+                    type: response.type,
+                    strategy: response.strategy,
+                    timestamp: new Date().toISOString()
+                });
+
+                // Limiter la taille de l'historique
+                if (state.conversationHistory.length > CONFIG.MEMORY_SIZE) {
+                    state.conversationHistory.shift();
+                }
+            }
+
+            animateStrategyChoice() {
+                const strategies = ['sublime', 'detourne', 'oublie'];
+                const chosen = motAleatoire(strategies);
+
+                const dots = document.querySelectorAll('.strategy-dot');
+                dots.forEach(dot => {
+                    dot.style.transform = 'scale(1)';
+                    dot.style.boxShadow = 'none';
+                });
+
+                const chosenDot = document.querySelector(`.strategy-dot.${chosen}`);
+                if (chosenDot) {
+                    chosenDot.style.transform = 'scale(1.5)';
+                    chosenDot.style.boxShadow = `0 0 15px ${getComputedStyle(chosenDot).backgroundColor}`;
+
+                    setTimeout(() => {
+                        chosenDot.style.transform = 'scale(1)';
+                        chosenDot.style.boxShadow = 'none';
+                    }, 1000);
+                }
+            }
+
+            animateStrategies() {
+                const dots = document.querySelectorAll('.strategy-dot');
+                let i = 0;
+
+                setInterval(() => {
+                    dots.forEach(dot => dot.style.opacity = '0.5');
+                    dots[i % dots.length].style.opacity = '1';
+                    i++;
+                }, 2000);
+            }
+
+            setupParticles() {
+                const particlesContainer = document.getElementById('particles');
+                const particles = ['💭', '✨', '🌀', '💫', '⚡', '🌌', '🔮', '🎲'];
+
+                for (let i = 0; i < 8; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.textContent = motAleatoire(particles);
+                    particle.style.left = `${Math.random() * 100}%`;
+                    particle.style.top = `${Math.random() * 100}%`;
+                    particle.style.animationDuration = `${15 + Math.random() * 20}s`;
+                    particle.style.animationDelay = `${Math.random() * 5}s`;
+                    particlesContainer.appendChild(particle);
+                }
+            }
+
+            createParticles(count) {
+                const particlesContainer = document.getElementById('particles');
+                const particles = ['✨', '💫', '🌀', '⚡'];
+
+                for (let i = 0; i < count; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.textContent = motAleatoire(particles);
+                    particle.style.left = `${20 + Math.random() * 60}%`;
+                    particle.style.top = `${50 + Math.random() * 30}%`;
+                    particle.style.opacity = '0.3';
+                    particle.style.animation = 'none';
+
+                    particlesContainer.appendChild(particle);
+
+                    // Animation rapide
+                    setTimeout(() => {
+                        particle.style.transition = 'all 1s';
+                        particle.style.transform = `translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px)`;
+                        particle.style.opacity = '0';
+
+                        setTimeout(() => {
+                            particle.remove();
+                        }, 1000);
+                    }, 10);
+                }
+            }
+
+            autoResizeTextarea() {
+                const textarea = this.userInput;
+                textarea.style.height = 'auto';
+                textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+
+        // ----------- FONCTIONS UTILITAIRES ----------- //
+        function motAleatoire(tab) {
+            return tab[Math.floor(Math.random() * tab.length)];
+        }
+
+        // ----------- INITIALISATION ----------- //
+        document.addEventListener('DOMContentLoaded', () => {
+            const chat = new ChatInterface();
+
+            // Placeholders dynamiques
+            const placeholders = [
+                "Comment rendre le numérique plus inclusif ?",
+                "La technologie nous rapproche-t-elle vraiment ?",
+                "C'est quoi un algorithme responsable ?",
+                "Le bonheur est-il compatible avec le digital ?",
+                "Comment réduire l'empreinte carbone d'Internet ?",
+                "L'amour à l'ère numérique, ça change quoi ?"
+            ];
+
+            setInterval(() => {
+                if (!chat.userInput.value) {
+                    chat.userInput.placeholder = motAleatoire(placeholders);
+                }
+            }, 8000);
+
+            // Focus automatique
+            setTimeout(() => chat.userInput.focus(), 1500);
+        });
+    </script>
+</body>
+
+</html>
+
